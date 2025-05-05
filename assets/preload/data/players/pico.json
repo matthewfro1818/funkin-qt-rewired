@@ -6,7 +6,8 @@
     "pico-playable",
     "pico-blazin",
     "pico-christmas",
-    "pico-dark"
+    "pico-dark",
+    "PICO-QT"
   ],
   "showUnownedChars": false,
   "unlocked": true,

@@ -1,0 +1,21 @@
+import funkin.play.character.MultiSparrowCharacter;
+import funkin.play.PlayState;
+
+class QtAnims extends MultiSparrowCharacter {
+	function new() {
+		super('QT');
+	}
+	override function playAnimation(name:String,restart:Bool, ignoreOther:Bool, reversed:Bool):Void
+	{
+		if (PlayState.instance != null) 
+			switch (name) {
+				case "preDance":
+					idleSuffix = '-alt';
+					shouldAlternate = true;
+				case "cheer":
+					idleSuffix = '';
+					shouldAlternate = false;
+			}
+		super.playAnimation(name,restart,ignoreOther,reversed);
+	}
+}

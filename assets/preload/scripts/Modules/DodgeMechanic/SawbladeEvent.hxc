@@ -1,0 +1,178 @@
+import flixel.FlxG;
+import funkin.Paths;
+import funkin.Conductor;
+import flixel.util.FlxTimer;
+import funkin.play.PlayState;
+import funkin.util.Constants;
+import flixel.tweens.FlxEase;
+import flixel.tweens.FlxTween;
+import funkin.audio.FunkinSound;
+import funkin.play.event.SongEvent;
+import funkin.graphics.FunkinSprite;
+import funkin.play.GameOverSubState;
+import funkin.modding.module.ModuleHandler;
+import funkin.graphics.adobeanimate.FlxAtlasSprite;
+import funkin.play.scoring.Scoring;
+
+class SawbladeEvent extends SongEvent {
+    private var warningVfx:FunkinSprite;
+    private var attackQuantity: Int = 1;
+    private var interval:Float;
+    private var hitWindow:Float;
+    private var hitTime:Float;
+    private var warnSound:FunkinSound;
+    private var attackSound:FunkinSound;
+    private var sawSprite:FlxAtlasSprite;
+    private var assetsExistInCurPlayState:Bool = false;
+
+    public function new() {
+        super('sawKB');
+    }
+
+   function onStateChangeStart(event:StateChangeScriptEvent)  
+	{
+		super.onStateChangeStart(event);
+		warningVfx.destroy();
+		sawSprite.destroy();
+	}
+
+
+    private function initializeAssets() {
+		
+		assetsExistInCurPlayState = sawSprite != null && PlayState.instance.currentStage.members.contains(sawSprite);
+        if (assetsExistInCurPlayState) return;
+		
+        warnSound = FunkinSound.load(Paths.sound('alert'), 1.0, false, false, false);
+        attackSound = FunkinSound.load(Paths.sound('attack'), 1.0, false, false, false);
+
+        warningVfx = new FunkinSprite().loadSparrow("preloadStuff/saw_mechanic_assets");
+        warningVfx.animation.addByPrefix('1-alert', "alert 1", 24, false);
+        warningVfx.animation.addByPrefix('2-alert', "alert 2", 24, false);
+        warningVfx.animation.addByPrefix('attack', "attack", 24, false);
+        warningVfx.cameras = [PlayState.instance.camHUD];
+        warningVfx.visible = false;
+        PlayState.instance.add(warningVfx);
+
+        var dadMidpoint = PlayState.instance.currentStage.getDad().getGraphicMidpoint();
+        sawSprite = new FlxAtlasSprite(dadMidpoint.x - 760, dadMidpoint.y - 400, Paths.animateAtlas("preloadStuff/saw_assets"));
+        sawSprite.visible = false;
+		PlayState.instance.currentStage.add(sawSprite);
+
+    }
+
+    public override function handleEvent(data: SongEventData) {
+        PlayState.instance.mayPauseGame = false;
+        interval = Conductor.instance.beatLengthMs / 1000;
+        hitWindow = PlayState.instance.currentDifficulty == "hard" ? 67.0 : Scoring.PBOT1_GOOD_THRESHOLD;
+        hitTime = data.time + interval * 2000;
+		initializeAssets();
+        executeWarning();
+        PlayState.instance.currentStage.scriptGet('moduleCheck').scriptSet("activeEvent", this.superClass);
+    }
+
+    private function executeWarning() {
+    sawSprite.onAnimationComplete.removeAll();
+    FlxTween.tween(PlayState.instance.currentStage.getNamedProp("blackScreen"), {alpha: 0.3}, 0.35, {ease: FlxEase.linear});
+    warnSound.play(true, 0);
+    warningVfx.visible = true;
+    warningVfx.animation.play('1-alert');
+    warningVfx.offset.set(0, 0);
+    warningVfx.screenCenter();
+
+
+    new FlxTimer().start(interval, function(_) {
+        warnSound.play(true, 0);
+        warningVfx.animation.play('2-alert');
+        warningVfx.offset.set(16, 9);
+        warningVfx.screenCenter();
+
+        if (attackQuantity > 0)
+            executeAttack();
+        
+    });
+}
+	 private function doSawAnimation() {
+              
+        	sawSprite.zIndex = (PlayState.instance.currentStage.scriptGet('moduleCheck').scriptGet('dodgeToggleAnim') == 0 ? 299 : 199);
+        	sawSprite.playAnimation('saw anim alert', true, false, false);
+            sawSprite.onAnimationComplete.addOnce((_) -> {
+                    
+                if (sawSprite.getCurrentAnimation() == "saw anim attack"){
+                   
+                    new FlxTimer().start(0.05, function(_) {
+                        sawSprite.visible = false;
+                        warningVfx.visible = false;
+                        FlxTween.tween(PlayState.instance.currentStage.getNamedProp("blackScreen"), {alpha: 0}, 0.35, {ease: FlxEase.linear});
+                    });
+                }
+            });
+            warningVfx.visible = true;
+            sawSprite.visible = true;
+
+			PlayState.instance.currentStage.refresh();
+    }
+
+    private function executeAttack():Void {
+        doSawAnimation();
+       
+
+        new FlxTimer().start(interval, function(_) {
+             if (PlayState.instance.isBotPlayMode)
+            PlayState.instance.currentStage.scriptGet('moduleCheck').scriptCall('bfDodge');
+            attackSound.play(true, 0);
+
+            warningVfx.animation.play('attack');
+            warningVfx.offset.set(41, 38);
+            warningVfx.screenCenter();
+            sawSprite.playAnimation("saw anim attack", true, false, false);
+            PlayState.instance.camGame.shake(0.007, 0.25);
+            PlayState.instance.currentStage.getGirlfriend().playAnimation("dodge");
+
+            new FlxTimer().start(hitWindow / 1000, function(_) {
+                if (!PlayState.instance.mayPauseGame) 
+                    onBadHit();
+            });
+        });
+    }
+
+    private function onGoodHit() {
+        PlayState.instance.applyScore(10, "dodged", 0.20, false);
+        PlayState.instance.popUpScore("dodged");
+        PlayState.instance.mayPauseGame = true;
+    }
+   
+
+    private function onBadHit() {
+
+        if (PlayState.instance.health <= 0.5|| PlayState.instance.currentDifficulty == "hard")
+        {
+            sawSprite.visible = false;
+            warningVfx.visible = false;
+            FlxG.camera.flash(0xFFff0000, 1);
+            GameOverSubState.musicSuffix = '-sawblade';
+            GameOverSubState.blueBallSuffix = '-sawblade';
+            PlayState.instance.health = Constants.HEALTH_MIN;
+            PlayState.instance.mayPauseGame = true;
+        }
+        else
+        {
+            FlxG.camera.flash(0xFFff0000, 0.3);
+            sawSprite.zIndex = 299;
+            PlayState.instance.currentStage.refresh();
+            PlayState.instance.health -= 0.75;
+            PlayState.instance.currentStage.getBoyfriend().playAnimation("sawHit",false,true);
+
+        }
+            PlayState.instance.mayPauseGame = true;
+
+    }
+    
+    public override function getTitle():String
+    {
+        return "Sawblade Event (QT)";
+    }
+    public override function getIconPath():String
+    {
+        return 'ui/chart-editor/events/sawKB';
+    }
+}

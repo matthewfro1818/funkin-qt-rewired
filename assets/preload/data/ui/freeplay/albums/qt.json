@@ -1,0 +1,10 @@
+{
+  "version": "1.0.0",
+  "name": "OST QT REWIRED",
+  "artists": [
+    "Biddle3",
+    "CharaWhy"
+  ],
+  "albumArtAsset": "freeplay/albumRoll/qt_album",
+  "albumTitleAsset": "freeplay/albumRoll/qt-text"
+}

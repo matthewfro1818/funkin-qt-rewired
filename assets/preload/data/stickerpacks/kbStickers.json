@@ -1,0 +1,15 @@
+{
+    "version": "1.0.0",
+    "name": "kbStickers",
+    "artist": "JoaDash",
+    "stickers": [
+        "transitionSwag/kbstickers/kbSticker1",
+        "transitionSwag/kbstickers/kbSticker2",
+        "transitionSwag/kbstickers/kbSticker3",
+        "transitionSwag/kbstickers/dangerSticker",
+        "transitionSwag/kbstickers/nutSticker",
+        "transitionSwag/kbstickers/tvSticker",
+        "transitionSwag/kbstickers/sawSticker",
+        "transitionSwag/kbstickers/qtKbSticker"
+    ]
+}

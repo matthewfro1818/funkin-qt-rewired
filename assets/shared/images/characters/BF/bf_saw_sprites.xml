@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-16"?>
+<TextureAtlas imagePath="bf_dodge.png">
+	<!-- Created with Adobe Flash CS6 version 12.0.0.481 -->
+	<!-- http://www.adobe.com/products/flash.html -->
+	<SubTexture name="bf dodge alt0000" x="0" y="0" width="401" height="383" frameX="-10" frameY="-1" frameWidth="411" frameHeight="384"/>
+	<SubTexture name="bf dodge alt0001" x="411" y="0" width="401" height="383" frameX="-10" frameY="-1" frameWidth="411" frameHeight="384"/>
+	<SubTexture name="bf dodge alt0002" x="822" y="0" width="406" height="382" frameX="0" frameY="0" frameWidth="411" frameHeight="384"/>
+	<SubTexture name="bf dodge alt0003" x="1238" y="0" width="406" height="382" frameX="0" frameY="0" frameWidth="411" frameHeight="384"/>
+	<SubTexture name="bf dodge alt0004" x="1654" y="0" width="406" height="382" frameX="0" frameY="0" frameWidth="411" frameHeight="384"/>
+	<SubTexture name="bf dodge alt0005" x="822" y="0" width="406" height="382" frameX="0" frameY="0" frameWidth="411" frameHeight="384"/>
+	<SubTexture name="bf dodge alt0006" x="1238" y="0" width="406" height="382" frameX="0" frameY="0" frameWidth="411" frameHeight="384"/>
+	<SubTexture name="bf dodge alt0007" x="1654" y="0" width="406" height="382" frameX="0" frameY="0" frameWidth="411" frameHeight="384"/>
+	<SubTexture name="bf dodge alt0008" x="822" y="0" width="406" height="382" frameX="0" frameY="0" frameWidth="411" frameHeight="384"/>
+	<SubTexture name="bf dodge alt0009" x="1238" y="0" width="406" height="382" frameX="0" frameY="0" frameWidth="411" frameHeight="384"/>
+	<SubTexture name="bf dodge alt0010" x="1654" y="0" width="406" height="382" frameX="0" frameY="0" frameWidth="411" frameHeight="384"/>
+	<SubTexture name="bf dodge alt0011" x="822" y="0" width="406" height="382" frameX="0" frameY="0" frameWidth="411" frameHeight="384"/>
+	<SubTexture name="bf dodge alt0012" x="1238" y="0" width="406" height="382" frameX="0" frameY="0" frameWidth="411" frameHeight="384"/>
+	<SubTexture name="bf dodge alt0013" x="1654" y="0" width="406" height="382" frameX="0" frameY="0" frameWidth="411" frameHeight="384"/>
+	<SubTexture name="bf saw hit0000" x="0" y="393" width="383" height="419" frameX="-16" frameY="0" frameWidth="515" frameHeight="420"/>
+	<SubTexture name="bf saw hit0001" x="393" y="393" width="419" height="419" frameX="-16" frameY="0" frameWidth="515" frameHeight="420"/>
+	<SubTexture name="bf saw hit0002" x="822" y="393" width="435" height="420" frameX="0" frameY="0" frameWidth="515" frameHeight="420"/>
+	<SubTexture name="bf saw hit0003" x="1267" y="393" width="476" height="420" frameX="0" frameY="0" frameWidth="515" frameHeight="420"/>
+	<SubTexture name="bf saw hit0004" x="1753" y="393" width="476" height="420" frameX="0" frameY="0" frameWidth="515" frameHeight="420"/>
+	<SubTexture name="bf saw hit0005" x="0" y="823" width="515" height="420"/>
+	<SubTexture name="bf saw hit0006" x="525" y="823" width="515" height="420"/>
+	<SubTexture name="bf saw hit0007" x="1050" y="823" width="347" height="420" frameX="0" frameY="0" frameWidth="515" frameHeight="420"/>
+	<SubTexture name="bf saw hit0008" x="1407" y="823" width="347" height="420" frameX="0" frameY="0" frameWidth="515" frameHeight="420"/>
+	<SubTexture name="bf saw hit0009" x="1764" y="823" width="347" height="420" frameX="0" frameY="0" frameWidth="515" frameHeight="420"/>
+	<SubTexture name="bf saw hit0010" x="1050" y="823" width="347" height="420" frameX="0" frameY="0" frameWidth="515" frameHeight="420"/>
+	<SubTexture name="bf saw hit0011" x="1407" y="823" width="347" height="420" frameX="0" frameY="0" frameWidth="515" frameHeight="420"/>
+	<SubTexture name="bf saw hit0012" x="1764" y="823" width="347" height="420" frameX="0" frameY="0" frameWidth="515" frameHeight="420"/>
+	<SubTexture name="bf saw hit0013" x="1050" y="823" width="347" height="420" frameX="0" frameY="0" frameWidth="515" frameHeight="420"/>
+	<SubTexture name="bf saw hit0014" x="1407" y="823" width="347" height="420" frameX="0" frameY="0" frameWidth="515" frameHeight="420"/>
+	<SubTexture name="bf saw hit0015" x="1764" y="823" width="347" height="420" frameX="0" frameY="0" frameWidth="515" frameHeight="420"/>
+	<SubTexture name="bf saw hit0016" x="1050" y="823" width="347" height="420" frameX="0" frameY="0" frameWidth="515" frameHeight="420"/>
+	<SubTexture name="bf saw hit0017" x="1407" y="823" width="347" height="420" frameX="0" frameY="0" frameWidth="515" frameHeight="420"/>
+	<SubTexture name="bf saw hit0018" x="1764" y="823" width="347" height="420" frameX="0" frameY="0" frameWidth="515" frameHeight="420"/>
+	<SubTexture name="bf saw hit0019" x="1050" y="823" width="347" height="420" frameX="0" frameY="0" frameWidth="515" frameHeight="420"/>
+	<SubTexture name="bf saw hit0020" x="1407" y="823" width="347" height="420" frameX="0" frameY="0" frameWidth="515" frameHeight="420"/>
+	<SubTexture name="bf saw hit0021" x="1764" y="823" width="347" height="420" frameX="0" frameY="0" frameWidth="515" frameHeight="420"/>
+	<SubTexture name="bf saw hit0022" x="1050" y="823" width="347" height="420" frameX="0" frameY="0" frameWidth="515" frameHeight="420"/>
+	<SubTexture name="bf saw hit0023" x="1407" y="823" width="347" height="420" frameX="0" frameY="0" frameWidth="515" frameHeight="420"/>
+	<SubTexture name="boyfriend dodge0000" x="0" y="1253" width="376" height="405" frameX="-3" frameY="0" frameWidth="381" frameHeight="405"/>
+	<SubTexture name="boyfriend dodge0001" x="386" y="1253" width="376" height="405" frameX="-3" frameY="0" frameWidth="381" frameHeight="405"/>
+	<SubTexture name="boyfriend dodge0002" x="772" y="1253" width="381" height="403" frameX="0" frameY="-2" frameWidth="381" frameHeight="405"/>
+	<SubTexture name="boyfriend dodge0003" x="1163" y="1253" width="381" height="403" frameX="0" frameY="-2" frameWidth="381" frameHeight="405"/>
+	<SubTexture name="boyfriend dodge0004" x="1554" y="1253" width="381" height="403" frameX="0" frameY="-2" frameWidth="381" frameHeight="405"/>
+	<SubTexture name="boyfriend dodge0005" x="772" y="1253" width="381" height="403" frameX="0" frameY="-2" frameWidth="381" frameHeight="405"/>
+	<SubTexture name="boyfriend dodge0006" x="1163" y="1253" width="381" height="403" frameX="0" frameY="-2" frameWidth="381" frameHeight="405"/>
+	<SubTexture name="boyfriend dodge0007" x="1554" y="1253" width="381" height="403" frameX="0" frameY="-2" frameWidth="381" frameHeight="405"/>
+	<SubTexture name="boyfriend dodge0008" x="772" y="1253" width="381" height="403" frameX="0" frameY="-2" frameWidth="381" frameHeight="405"/>
+	<SubTexture name="boyfriend dodge0009" x="1163" y="1253" width="381" height="403" frameX="0" frameY="-2" frameWidth="381" frameHeight="405"/>
+	<SubTexture name="boyfriend dodge0010" x="1554" y="1253" width="381" height="403" frameX="0" frameY="-2" frameWidth="381" frameHeight="405"/>
+	<SubTexture name="boyfriend dodge0011" x="772" y="1253" width="381" height="403" frameX="0" frameY="-2" frameWidth="381" frameHeight="405"/>
+	<SubTexture name="boyfriend dodge0012" x="1163" y="1253" width="381" height="403" frameX="0" frameY="-2" frameWidth="381" frameHeight="405"/>
+	<SubTexture name="boyfriend dodge0013" x="1554" y="1253" width="381" height="403" frameX="0" frameY="-2" frameWidth="381" frameHeight="405"/>
+	<SubTexture name="boyfriend dodge0014" x="772" y="1253" width="381" height="403" frameX="0" frameY="-2" frameWidth="381" frameHeight="405"/>
+</TextureAtlas>

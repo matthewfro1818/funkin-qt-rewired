@@ -1,0 +1,44 @@
+import funkin.graphics.adobeanimate.FlxAtlasSprite;
+import flixel.math.FlxPoint;
+import flixel.util.FlxTimer;
+import funkin.play.GameOverSubState;
+
+class BoyfriendGameOverSawblade extends FlxAtlasSprite
+{
+
+  public function new(x:Float, y:Float)
+  {
+  
+    super(x, y, Paths.animateAtlas("characters/BF/bf_saw_death", "shared"), {
+      FrameRate: 24.0,
+      Reversed: false,
+      ShowPivot: false,
+      Antialiasing: true,
+      ScrollFactor: new FlxPoint(1, 1),
+    });
+  }
+
+  function doDieAnim(){
+    this.playAnimation("bf fuckin dies lol");
+		GameOverSubState.instance.mustNotExit = true;
+    onAnimationComplete.addOnce((n) ->  {
+      this.playAnimation("bf dead loop", true, false, true);
+			new FlxTimer().start(1.35, function(tmr)
+			{
+				GameOverSubState.instance.startDeathMusic(1, false);
+			});
+			GameOverSubState.instance.mustNotExit = false;
+			GameOverSubState.blueballed = false;
+    });
+  }
+
+  function doUnDieAnim(){
+    this.playAnimation("bf undeading", false, false, false, 0);
+    onAnimationComplete.addOnce((n) ->  {
+      this.anim.pause();
+    });
+  }
+  
+
+
+} 

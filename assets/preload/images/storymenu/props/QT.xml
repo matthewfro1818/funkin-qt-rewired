@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-16"?>
+<TextureAtlas imagePath="QT.png">
+	<!-- Created with Adobe Flash CS6 version 12.0.0.481 -->
+	<!-- http://www.adobe.com/products/flash.html -->
+	<SubTexture name="qt_hey0000" x="0" y="0" width="500" height="435" frameX="0" frameY="-2" frameWidth="502" frameHeight="437"/>
+	<SubTexture name="qt_hey0001" x="0" y="0" width="500" height="435" frameX="0" frameY="-2" frameWidth="502" frameHeight="437"/>
+	<SubTexture name="qt_hey0002" x="510" y="0" width="475" height="431" frameX="-27" frameY="-6" frameWidth="502" frameHeight="437"/>
+	<SubTexture name="qt_hey0003" x="510" y="0" width="475" height="431" frameX="-27" frameY="-6" frameWidth="502" frameHeight="437"/>
+	<SubTexture name="qt_hey0004" x="995" y="0" width="477" height="435" frameX="-25" frameY="-2" frameWidth="502" frameHeight="437"/>
+	<SubTexture name="qt_hey0005" x="995" y="0" width="477" height="435" frameX="-25" frameY="-2" frameWidth="502" frameHeight="437"/>
+	<SubTexture name="qt_hey0006" x="0" y="445" width="477" height="437" frameX="-25" frameY="0" frameWidth="502" frameHeight="437"/>
+	<SubTexture name="qt_hey0007" x="0" y="445" width="477" height="437" frameX="-25" frameY="0" frameWidth="502" frameHeight="437"/>
+	<SubTexture name="qt_hey0008" x="0" y="445" width="477" height="437" frameX="-25" frameY="0" frameWidth="502" frameHeight="437"/>
+	<SubTexture name="qt_hey0009" x="0" y="445" width="477" height="437" frameX="-25" frameY="0" frameWidth="502" frameHeight="437"/>
+	<SubTexture name="qt_hey0010" x="0" y="445" width="477" height="437" frameX="-25" frameY="0" frameWidth="502" frameHeight="437"/>
+	<SubTexture name="qt_hey0011" x="0" y="445" width="477" height="437" frameX="-25" frameY="0" frameWidth="502" frameHeight="437"/>
+	<SubTexture name="qt_hey0012" x="0" y="445" width="477" height="437" frameX="-25" frameY="0" frameWidth="502" frameHeight="437"/>
+	<SubTexture name="qt_hey0013" x="0" y="445" width="477" height="437" frameX="-25" frameY="0" frameWidth="502" frameHeight="437"/>
+	<SubTexture name="qt_idle0000" x="487" y="445" width="363" height="517" frameX="-4" frameY="-1" frameWidth="367" frameHeight="518"/>
+	<SubTexture name="qt_idle0001" x="860" y="445" width="362" height="505" frameX="0" frameY="-13" frameWidth="367" frameHeight="518"/>
+	<SubTexture name="qt_idle0002" x="860" y="445" width="362" height="505" frameX="0" frameY="-13" frameWidth="367" frameHeight="518"/>
+	<SubTexture name="qt_idle0003" x="0" y="972" width="361" height="492" frameX="-1" frameY="-26" frameWidth="367" frameHeight="518"/>
+	<SubTexture name="qt_idle0004" x="0" y="972" width="361" height="492" frameX="-1" frameY="-26" frameWidth="367" frameHeight="518"/>
+	<SubTexture name="qt_idle0005" x="371" y="972" width="353" height="500" frameX="-4" frameY="-18" frameWidth="367" frameHeight="518"/>
+	<SubTexture name="qt_idle0006" x="371" y="972" width="353" height="500" frameX="-4" frameY="-18" frameWidth="367" frameHeight="518"/>
+	<SubTexture name="qt_idle0007" x="734" y="972" width="360" height="516" frameX="-4" frameY="-2" frameWidth="367" frameHeight="518"/>
+	<SubTexture name="qt_idle0008" x="734" y="972" width="360" height="516" frameX="-4" frameY="-2" frameWidth="367" frameHeight="518"/>
+	<SubTexture name="qt_idle0009" x="1104" y="972" width="361" height="518" frameX="-4" frameY="0" frameWidth="367" frameHeight="518"/>
+	<SubTexture name="qt_idle0010" x="1104" y="972" width="361" height="518" frameX="-4" frameY="0" frameWidth="367" frameHeight="518"/>
+	<SubTexture name="qt_idle0011" x="1104" y="972" width="361" height="518" frameX="-4" frameY="0" frameWidth="367" frameHeight="518"/>
+	<SubTexture name="qt_idle0012" x="1104" y="972" width="361" height="518" frameX="-4" frameY="0" frameWidth="367" frameHeight="518"/>
+	<SubTexture name="qt_idle0013" x="1104" y="972" width="361" height="518" frameX="-4" frameY="0" frameWidth="367" frameHeight="518"/>
+</TextureAtlas>

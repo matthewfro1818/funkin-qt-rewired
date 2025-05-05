@@ -1,0 +1,328 @@
+import flixel.FlxG;
+import flixel.FlxSprite;
+import flixel.math.FlxBasePoint;
+import flixel.tweens.FlxTween;
+import flixel.tweens.FlxEase;
+import flixel.util.FlxTimer;
+import funkin.Conductor;
+import funkin.graphics.adobeanimate.FlxAtlasSprite;
+import funkin.graphics.FunkinSprite;
+import funkin.modding.base.ScriptedFlxAtlasSprite;
+import funkin.data.song.SongRegistry;
+import funkin.play.GameOverSubState;
+import funkin.play.PlayState;
+import funkin.play.song.Song;
+import funkin.play.stage.StageProp;
+import funkin.audio.FunkinSound;
+import funkin.play.cutscene.CutsceneType;
+import funkin.save.Save;
+import funkin.modding.PolymodHandler;
+import funkin.util.FileUtil;
+import hxvlc.flixel.FlxVideoSprite;
+import lime.app.Application;
+import funkin.play.cutscene.VideoCutscene;
+import funkin.play.PlayStatePlaylist;
+
+class QTObliteratedSong extends Song {
+	var hasPlayedInGameCutscene:Bool;
+	var hasPlayedVideo:Bool = false;
+
+	var cutsceneSfx:FunkinSound;
+	var cutsceneSfx2:FunkinSound;
+	var bgSprite:FunkinSprite;
+	var tweens = [];
+	var pausedTweens = [];
+	var cutsceneConductor:Conductor;
+	var videoFile = null;
+	var videoMidFile;
+	var midVideo;
+	var isOnVideo;
+
+	public function new() {
+		super('obliterated');
+
+		hasPlayedInGameCutscene = false;
+	}
+
+	override function onCreate(event:ScriptEvent):Void {
+		super.onCreate(event);
+
+		hasPlayedInGameCutscene = false;
+		for (id in PolymodHandler.getAllModIds()) {
+			videoFile = PolymodHandler.MOD_FOLDER + '/' + id + '/videos/credits.mp4';
+
+			if (FileUtil.doesFileExist(videoFile))
+				break;
+		}
+		focusLost = function(?_) {
+			if (midVideo == null)
+				return;
+			midVideo.pause();
+		}
+		Application.current.window.onFocusOut.add(focusLost);
+		for (id in PolymodHandler.getAllModIds()) {
+			videoMidFile = PolymodHandler.MOD_FOLDER + '/' + id + '/videos/cutscene.mp4';
+			if (FileUtil.doesFileExist(videoMidFile))
+				break;
+		}
+	}
+
+	public override function onCountdownStart(event:CountdownScriptEvent):Void {
+		super.onCountdownStart(event);
+		isOnVideo = false;
+		if (!PlayStatePlaylist.isStoryMode)
+			hasPlayedInGameCutscene = true;
+		if (midVideo != null) {
+			midVideo.stop();
+			PlayState.instance.currentStage.remove(midVideo);
+			midVideo.destroy();
+			midVideo = null;
+		}
+
+		midVideo = new FlxVideoSprite();
+		midVideo.bitmap.onEndReached.add(() -> {
+			midVideo.stop();
+			PlayState.instance.currentStage.remove(midVideo);
+			midVideo.destroy();
+			midVideo = null;
+		});
+		midVideo.bitmap.onFormatSetup.add(() -> {
+			midVideo.setGraphicSize(FlxG.width);
+			midVideo.updateHitbox();
+			midVideo.screenCenter();
+		});
+		PlayState.instance.currentStage.add(midVideo);
+
+		if (!hasPlayedInGameCutscene) {
+			PlayState.instance.currentStage.scriptCall('changeNormal');
+			hasPlayedInGameCutscene = true;
+			event.cancel();
+			PlayState.instance.camHUD.visible = false;
+			PlayState.instance.isInCutscene = true;
+			introCutscene();
+		} else if (PlayStatePlaylist.isStoryMode)
+			PlayState.instance.currentStage.scriptCall('storyModeCountDown');
+
+		PlayState.instance.healthBar.alpha = 1;
+		PlayState.instance.healthBarBG.alpha = 1;
+		PlayState.instance.scoreText.alpha = 1;
+		PlayState.instance.opponentStrumline.alpha = 1;
+		PlayState.instance.iconP2.alpha = 1;
+		PlayState.instance.iconP1.alpha = 1;
+		PlayState.instance.playerStrumline.alpha = 1;
+	}
+
+	function introCutscene() {
+		PlayState.instance.currentStage.getNamedProp('blackScreen').screenCenter();
+		var bfPos:Array<Float> = [
+			PlayState.instance.currentStage.getBoyfriend().cameraFocusPoint.x,
+			PlayState.instance.currentStage.getBoyfriend().cameraFocusPoint.y
+		];
+		var gfPos:Array<Float> = [
+			PlayState.instance.currentStage.getGirlfriend().cameraFocusPoint.x,
+			PlayState.instance.currentStage.getGirlfriend().cameraFocusPoint.y
+		];
+		var qtPos:Array<Float> = [
+			PlayState.instance.currentStage.getDad().cameraFocusPoint.x,
+			PlayState.instance.currentStage.getDad().cameraFocusPoint.y
+		];
+
+		cutsceneConductor = new Conductor();
+
+		cutsceneSfx = FunkinSound.load(Paths.sound("qtsfx"), true);
+		cutsceneSfx.volume = 1;
+
+		cutsceneSfx2 = FunkinSound.load(Paths.sound("qtsfx"), true);
+		cutsceneSfx2.volume = 0;
+		cutsceneSfx2.play();
+
+		var songMusicData:Null<SongMusicData> = SongRegistry.instance.parseMusicData('qtsfx');
+		if (songMusicData != null) {
+			cutsceneConductor.mapTimeChanges(songMusicData.timeChanges);
+		}
+
+		cutsceneConductor.onBeatHit.add(onCutsceneBeatHit);
+
+		PlayState.instance.currentStage.getDad().zIndex = 400;
+		PlayState.instance.currentStage.refresh();
+		PlayState.instance.tweenCameraToPosition(gfPos[0] - 30, gfPos[1] + 100, 0);
+		PlayState.instance.tweenCameraZoom(0.64, 0, true, FlxEase.quadInOut);
+		PlayState.instance.currentStage.getDad().playAnimation('qt transform', true);
+
+		new FlxTimer().start(1, function(tmr) { // QT sfx
+			cutsceneSfx.play();
+		});
+
+		new FlxTimer().start(2.26, function(tmr) { // QT SPOTLIGHT APPEARS
+
+			var tween = FlxTween.tween(PlayState.instance.currentStage.getNamedProp("blackScreen"), {alpha: 1}, 1.10, {ease: FlxEase.linear});
+			tweens.push(tween);
+			var tween = FlxTween.tween(PlayState.instance.currentStage.getNamedProp("spotLight"), {alpha: 1}, 1.10, {ease: FlxEase.linear});
+			tweens.push(tween);
+		});
+
+		new FlxTimer().start(12, function(tmr) // RED BLACK CHANGE
+		{
+			var tween = FlxTween.tween(PlayState.instance.currentStage.getNamedProp("redScreen"), {alpha: 1}, 0.7, {ease: FlxEase.linear});
+			tweens.push(tween);
+
+			var tween = FlxTween.tween(PlayState.instance.currentStage.getNamedProp("spotLight"), {alpha: 0}, 0.7, {ease: FlxEase.linear});
+			tweens.push(tween);
+		});
+
+		new FlxTimer().start(13, function(tmr) // Fade Transition
+		{
+			PlayState.instance.camCutscene.fade(0xFFFFFFFF, 2, false, function() {
+				PlayState.instance.currentStage.getDad().zIndex = 200;
+				PlayState.instance.currentStage.refresh();
+
+				new FlxTimer().start(2, function(tmr) {
+					PlayState.instance.currentStage.getNamedProp("blackScreen").alpha = 0;
+					PlayState.instance.currentStage.getNamedProp("redScreen").alpha = 0;
+					PlayState.instance.currentStage.getNamedProp("spotLight").alpha = 0;
+				});
+			});
+		});
+
+		new FlxTimer().start(16, function(tmr) // Black Screen appears
+		{
+			PlayState.instance.currentStage.scriptCall('storyModeCountDown');
+			PlayState.instance.camCutscene.fade(0xFFFFFFFF, 0, true, null);
+		});
+		new FlxTimer().start(18, function(tmr) // Delayed Countdown
+		{
+			PlayState.instance.isInCountdown = true;
+			PlayState.instance.startSong();
+			PlayState.instance.camHUD.visible = true;
+			PlayState.instance.isInCutscene = false;
+		});
+	}
+
+	public function listDifficulties(variationId:String, variationIds:Array<String>, showLocked:Bool):Array<String> {
+		if (showLocked || Save.instance.hasBeatenLevel('QTWeek')) {
+			return super.listDifficulties(variationId, variationIds);
+		}
+
+		return [];
+	}
+
+	function onUpdate(event) {
+		super.onUpdate(event);
+
+		if (cutsceneConductor != null && cutsceneSfx2 != null) {
+			cutsceneConductor.update(cutsceneSfx2.time);
+		}
+	}
+
+	override function onDestroy(event) {
+		super.onDestroy(event);
+		resetTweens();
+	}
+
+	function resetTweens() {
+		for (tween in tweens) {
+			if (tween != null)
+				tween.cancel();
+		}
+		tweens = [];
+		pausedTweens = [];
+	}
+
+	override function onResume(event) {
+		super.onResume(event);
+		for (tween in pausedTweens) {
+			if (tween != null)
+				tween.active = true;
+		}
+		pausedTweens = [];
+	}
+
+	override function onPause(event) {
+		super.onPause(event);
+		for (tween in tweens) {
+			if (tween != null) {
+				tween.active = false;
+				pausedTweens.push(tween);
+			}
+		}
+	}
+
+	function onCutsceneBeatHit() {
+		PlayState.instance.currentStage.getGirlfriend().dance(true);
+		PlayState.instance.currentStage.getBoyfriend().dance(true);
+	}
+
+	override function onNoteGhostMiss(event) {
+		super.onNoteGhostMiss(event);
+		if (isOnVideo) {
+			event.cancel();
+			event.stopPropagation();
+		}
+	}
+
+	override public function onSongEvent(event:SongEventScriptEvent):Void {
+		super.onSongEvent(event);
+
+		switch (event.eventData.eventKind) {
+			case "cutsceneVideo":
+				if (midVideo.load(videoMidFile))
+					midVideo.play();
+				isOnVideo = true;
+				midVideo.cameras = [PlayState.instance.camHUD];
+			case "cutsceneVideoOut":
+				isOnVideo = false;
+				midVideo.stop();
+				PlayState.instance.currentStage.remove(midVideo);
+				midVideo.destroy();
+				midVideo = null;
+				hideHUD(1);
+				FlxTween.tween(PlayState.instance.currentStage.getNamedProp('blackScreenVideo'), {alpha: 0}, 3, {ease: FlxEase.quadInOut});
+				FlxTween.tween(PlayState.instance.playerStrumline, {alpha: 1}, 3, {ease: FlxEase.quadInOut});
+			case "fadeStart":
+				hideHUD(0);
+				FlxTween.tween(PlayState.instance.currentStage.getNamedProp('blackScreenVideo'), {alpha: 1}, 3, {ease: FlxEase.quadInOut});
+		}
+	}
+
+	function hideHUD(alphaInt:Int) {
+		for (object in [
+			PlayState.instance.healthBar,
+			PlayState.instance.healthBarBG,
+			PlayState.instance.scoreText,
+			PlayState.instance.opponentStrumline,
+			PlayState.instance.iconP2,
+			PlayState.instance.iconP1
+		]) {
+			FlxTween.tween(object, {alpha: alphaInt}, 3, {ease: FlxEase.quadInOut});
+		}
+	}
+
+	override function onPause(event:PauseScriptEvent):Void {
+		super.onPause(event);
+
+		if (midVideo != null && midVideo.bitmap.isPlaying) {
+			midVideo.pause();
+		}
+	}
+
+	override function onResume(event:ScriptEvent):Void {
+		super.onResume(event);
+		if (midVideo != null)
+			midVideo.resume();
+
+		VideoCutscene.play(videoFile, CutsceneType.ENDING);
+	}
+
+	public override function onSongEnd(event:CountdownScriptEvent):Void {
+		super.onSongEnd(event);
+		if (!PlayStatePlaylist.isStoryMode)
+			hasPlayedVideo = true;
+
+		if (!hasPlayedVideo) {
+			hasPlayedVideo = true;
+			event.cancel();
+			VideoCutscene.play(videoFile, CutsceneType.ENDING);
+		} else
+			hasPlayedVideo = false;
+	}
+}

@@ -1,0 +1,60 @@
+import funkin.play.PlayState;
+import funkin.play.character.MultiSparrowCharacter;
+import funkin.graphics.FunkinSprite;
+
+class GirlfriendQtAnims extends MultiSparrowCharacter {
+	function new() {
+		super('GF-QT');
+	}
+	public var boomBoxSpeakers:FunkinSprite;
+	function onCreate(event:ScriptEvent) {
+		super.onCreate(event);	
+
+		boomBoxSpeakers = FunkinSprite.createSparrow(this.x, this.y, "characters/GF/speaker_assets");
+		boomBoxSpeakers.animation.addByPrefix('boom', 'bumpBox', 24, false);
+		boomBoxSpeakers.antialiasing = this.antialiasing;
+		
+	}
+	var indexChange:Bool = false;
+	function onUpdate(event:UpdateScriptEvent) {
+		super.onUpdate(event);
+
+		boomBoxSpeakers.visible = this.visible;
+		if (!indexChange)
+		{
+			boomBoxSpeakers.x = this.x - 350 + 162; // 727 - 350 + 162 = 377
+			boomBoxSpeakers.y = this.y - 118 + 422; // 555 - 118 + 422 = 43
+			boomBoxSpeakers.zIndex = this.zIndex - 1;
+			boomBoxSpeakers.shader = this.shader;
+			PlayState.instance.currentStage.add(boomBoxSpeakers);
+
+
+			PlayState.instance.currentStage.refresh();
+			indexChange = true;
+		}
+	}
+			
+function dance(forceRestart:Bool) {
+		super.dance(forceRestart);
+
+		if (boomBoxSpeakers != null && boomBoxSpeakers.animation != null)
+			boomBoxSpeakers.animation.play("boom", true);
+		
+	}
+
+
+	override function playAnimation(name:String,restart:Bool, ignoreOther:Bool, reversed:Bool):Void
+	{
+		if (PlayState.instance != null) 
+		switch (name) {
+            case "preDance":
+				idleSuffix = '-alt';
+			case "cheer":
+				idleSuffix = '';
+
+        }
+		super.playAnimation(name,restart,ignoreOther,reversed);
+		
+	}
+	
+}

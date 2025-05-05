@@ -1,0 +1,142 @@
+import funkin.play.character.MultiSparrowCharacter;
+import funkin.play.PlayState;
+import funkin.play.GameOverSubState;
+import funkin.graphics.FunkinSprite;
+import flixel.FlxSprite;
+import funkin.play.PauseSubState;
+import flixel.FlxG;
+
+class PicoQtAnims extends MultiSparrowCharacter {
+	function new() {
+		super('PICO-QT');
+	}
+
+	function onCreate(event:ScriptEvent) {
+		super.onCreate(event);
+
+		GameOverSubState.musicSuffix = '-pico';
+		GameOverSubState.blueBallSuffix = '-pico';
+		PauseSubState.musicSuffix = '-pico';
+	}
+
+	var deathSpriteRetry:FunkinSprite;
+	var deathSpriteNene:FunkinSprite;
+
+	var picoFade:FunkinSprite;
+
+	function createDeathSprites() {
+		deathSpriteRetry = FunkinSprite.createSparrow(0, 0, "characters/PICO/Death/Pico_Death_Retry");
+		deathSpriteRetry.animation.addByPrefix('idle', "Retry Text Loop0", 24, true);
+		deathSpriteRetry.animation.addByPrefix('confirm', "Retry Text Confirm0", 24, false);
+		deathSpriteRetry.zIndex = this.zIndex + 5;
+		deathSpriteRetry.visible = false;
+
+		deathSpriteNene = FunkinSprite.createSparrow(0, 0, "characters/NENE/Death/NeneKnifeToss");
+		var gf = PlayState.instance.currentStage.getGirlfriend();
+		deathSpriteNene.x = gf.x + 120;
+		deathSpriteNene.y = gf.y - 70;
+		deathSpriteNene.zIndex = this.zIndex - 5;
+		deathSpriteNene.animation.addByPrefix('throw', "knife toss0", 24, false);
+		deathSpriteNene.visible = true;
+		deathSpriteNene.animation.onFinish.add(function(name:String) {
+			deathSpriteNene.visible = false;
+		});
+	}
+function onAnimationFinished(name:String) {
+		super.onAnimationFinished(name);
+
+		if (PlayState.instance != null) 
+		{
+			switch (name) {	
+				case "preDance":
+					playAnimation('idle-alt', false, false);
+			}
+		}
+	}
+		override function playAnimation(name:String,restart:Bool, ignoreOther:Bool, reversed:Bool):Void
+	{
+		super.playAnimation(name, restart, ignoreOther,reversed);
+
+		if (PlayState.instance != null) 
+		{
+			switch (name) {	
+				case "preDance":
+					idleSuffix = '-alt';
+				case "flip":
+					idleSuffix = '';
+				case "firstDeath":
+					createDeathSprites();
+					GameOverSubState.instance.add(deathSpriteRetry);
+					GameOverSubState.instance.add(deathSpriteNene);
+					deathSpriteNene.animation.play("throw");
+				case "deathConfirm":
+					deathSpriteRetry.animation.play('confirm', true);
+					deathSpriteRetry.x -= 250;
+					deathSpriteRetry.y -= 200;
+					return;
+				case "cough" | "burp-long":
+					super.playAnimation(name, restart, true,reversed);
+				
+
+			}
+
+		}
+	}
+	function onUpdate(event:UpdateScriptEvent) {
+		super.onUpdate(event);
+		if (["cough", "burp-long"].contains(getCurrentAnimation()))
+			PlayState.instance.vocals.playerVolume = 1;
+
+	}
+	
+
+	public override function getDeathCameraOffsets():Array<Float> {
+		var result = super.getDeathCameraOffsets();
+		return [result[0], result[1]];
+	}
+
+	override function onSongRetry(event:ScriptEvent):Void {
+		super.onSongRetry(event);
+
+		GameOverSubState.musicSuffix = '-pico';
+		GameOverSubState.blueBallSuffix = '-pico';
+		PauseSubState.musicSuffix = '-pico';
+		this.visible = true;
+	}
+
+	function onAnimationFrame(name:String, frameNumber:Int, frameIndex:Int) {
+		super.onAnimationFrame(name, frameNumber, frameIndex);
+		if (name == "firstDeath" && frameNumber == 36 - 1) {
+			if (deathSpriteRetry != null && deathSpriteRetry.animation != null)
+			{
+				deathSpriteRetry.animation.play('idle');
+				deathSpriteRetry.visible = true;
+
+				deathSpriteRetry.x = this.x + 195;
+				deathSpriteRetry.y = this.y - 70;
+			}
+
+			GameOverSubState.instance.startDeathMusic(1.0, false);
+			GameOverSubState.instance.boyfriend.playAnimation('deathLoop');
+		}
+	}
+
+	override function getDeathQuote():Null<String> {
+		switch (PlayState.instance.currentStage.getDad().characterId) {
+			case "QT":
+				return Paths.sound('qtgameover/bf/qtGameover-' + FlxG.random.int(1, 7));
+			default:
+				return null;
+		}
+	}
+	function addToStage(sprite:FlxSprite) {
+		if (this.debug) {
+			// We are in the chart editor or something.
+			// TODO: Make this work properly.
+		} else if (PlayState.instance != null && PlayState.instance.currentStage != null) {
+			PlayState.instance.currentStage.add(sprite);
+		} else {
+			trace('Could not add Pico sprite to stage.');
+		}
+	}
+}	
