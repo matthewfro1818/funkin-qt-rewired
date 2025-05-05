@@ -1,0 +1,99 @@
+import funkin.play.PlayState;
+import flixel.FlxG;
+import funkin.play.character.MultiSparrowCharacter;
+import flixel.util.FlxTimer;
+import funkin.play.GameOverSubState;
+import funkin.input.Controls;
+import funkin.play.character.CharacterType;
+import funkin.modding.base.ScriptedFlxAtlasSprite;
+
+class BoyfriendQtAnims extends MultiSparrowCharacter {
+	function new() {
+		super('BF-QT');
+	}
+	var bfDeathSprite;
+	
+	override function playAnimation(name:String,restart:Bool, ignoreOther:Bool, reversed:Bool):Void
+	{
+		if (PlayState.instance != null) 
+		{
+			switch (name) {	
+				case "preDance":
+					idleSuffix = '-alt';
+					shouldAlternate = true;
+				case "cheer":
+					idleSuffix = '';
+					shouldAlternate = false;
+				case "firstDeath":
+					if (GameOverSubState.blueBallSuffix == "-sawblade")
+					{
+						createDeathSprites();
+						return;
+					}
+				
+			}
+			
+		}
+		super.playAnimation(name,restart,ignoreOther,reversed);
+	}
+	
+	function createDeathSprites() {
+		this.visible = false;
+		if (bfDeathSprite == null)
+			bfDeathSprite = ScriptedFlxAtlasSprite.init('BoyfriendGameOverSawblade',0,0);
+			
+		bfDeathSprite.setPosition(this.x + 270, this.y + 210);
+		bfDeathSprite.scriptCall('doDieAnim');
+		GameOverSubState.instance.add(bfDeathSprite);
+		GameOverSubState.instance.cameraFollowPoint.x = bfDeathSprite.x + 60 ;
+		GameOverSubState.instance.cameraFollowPoint.y = bfDeathSprite.y - 30;	
+	}
+	override function onSongRetry(event:ScriptEvent):Void {
+		super.onSongRetry(event);
+		bfDeathSprite = null;
+		this.visible = true;
+	}
+	override function onCreate(event)
+  	{
+    	super.onCreate(event);
+		if (PlayState.instance == null) return;
+		bfDeathSprite = ScriptedFlxAtlasSprite.init('BoyfriendGameOverSawblade',0,0);
+
+	}
+	override function getDeathQuote():Null<String> {
+		switch (PlayState.instance.currentStage.getDad().characterId) {
+			case "QT":
+				return Paths.sound('qtgameover/bf/qtGameover-' + FlxG.random.int(1, 7));
+			default:
+				return null;
+		}
+	}
+	public override function onUpdate(event)
+  	{
+    	super.onUpdate(event);
+		if (bfDeathSprite != null && GameOverSubState.instance != null && GameOverSubState.blueBallSuffix == '-sawblade' && !GameOverSubState.instance.mustNotExit && GameOverSubState.instance.controls.ACCEPT)
+		{
+			if (!GameOverSubState.instance.isEnding)
+    {
+      	GameOverSubState.instance.isEnding = true;
+      	GameOverSubState.instance.startDeathMusic(1.0, true); 
+
+        bfDeathSprite.scriptCall('doUnDieAnim');
+
+      	new FlxTimer().start(2.85, function(tmr:FlxTimer) {
+        FlxG.camera.fade(0xFF000000, 2, false, function() {
+          FlxG.camera.fade(0xFF000000, 1, true, null, true);
+          PlayState.instance.needsReset = true;
+          if (!PlayState.instance.isMinimalMode) {
+            GameOverSubState.instance.boyfriend.isDead = false;
+            GameOverSubState.instance.remove(GameOverSubState.instance.boyfriend);
+            PlayState.instance.currentStage.addCharacter(GameOverSubState.instance.boyfriend, CharacterType.BF);
+          }
+          GameOverSubState.instance.resetCameraZoom();
+          GameOverSubState.instance.close();
+        });
+      });
+    }
+		}
+  	}
+}

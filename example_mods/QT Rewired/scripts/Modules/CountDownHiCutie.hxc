@@ -1,0 +1,191 @@
+import funkin.play.PlayState;
+import funkin.modding.module.Module;
+import funkin.audio.FunkinSound;
+import funkin.Paths;
+import flixel.util.FlxTimer;
+import flixel.tweens.FlxEase;
+import flixel.tweens.FlxTween;
+import funkin.modding.base.ScriptedFlxAtlasSprite;
+import funkin.Conductor;
+import funkin.data.song.SongRegistry;
+import funkin.ui.mainmenu.MainMenuState;
+import flixel.FlxG;
+import StringTools;
+
+class CountDownHiCutie extends Module {
+	private var hasPlayedQtCountDown:Bool = false;
+	private var cutsceneConductor:Conductor;
+	private var songIntro:FunkinSound;
+	public function new() { 
+		super('CountDownHiCutie'); 
+	}
+	public override function isSongPico(currentDifficulty:String, currentVariation:String):Bool {
+		return currentVariation == 'pico' && !Save.instance.hasBeatenSong(this.id, null, 'pico');
+	}
+	private function picoHi() {
+		var ps = PlayState.instance;
+		var bf = ps.currentStage.getBoyfriend();
+		
+		picoAkwardFourthWall.setPosition(bf.x - 40.5,bf.y - 2.5); 
+		picoAkwardFourthWall.shader = bf.shader;
+		picoAkwardFourthWall.zIndex = bf.zIndex;
+		bf.visible = false;
+		
+		ps.currentStage.add(picoAkwardFourthWall);
+		ps.currentStage.refresh();
+		picoAkwardFourthWall.scriptCall('doAnim');
+
+		picoAkwardFourthWall.onAnimationComplete.addOnce((_) -> {
+			if (picoAkwardFourthWall.getCurrentAnimation() != "picoHi-intro-easterEgg") {
+				picoAkwardFourthWall.destroy();
+				ps.tweenCameraZoom(ps.stageZoom, 4, true, FlxEase.smoothStepInOut);
+				bf.visible = true;
+				ps.tweenCameraToPosition(
+					ps.currentStage.getDad().cameraFocusPoint.x,
+					ps.currentStage.getDad().cameraFocusPoint.y, 
+					3, true
+				);
+			}
+		});
+	}
+	function onUpdate(event:UpdateScriptEvent):Void {
+		super.onUpdate(event);
+		if (PlayState.instance == null) return;
+		
+		if (FlxG.keys.justPressed.ONE) PlayState.instance.endSong(false);
+		if (PlayState.instance != null && PlayState.instance.isInCutscene && 
+			cutsceneConductor != null && songIntro != null)
+			cutsceneConductor.update(songIntro.time);
+
+	}
+
+	function onDestroy(event) { 
+		super.onDestroy(event); 
+		hasPlayedQtCountDown = false; 
+	}
+
+	public function onStateChangeBegin(event) { 
+		super.onStateChangeBegin(event); 
+		hasPlayedQtCountDown = false; 
+	}
+	
+
+
+	
+
+	public override function onCountdownStart(event:CountdownScriptEvent):Void {
+		super.onCountdownStart(event);
+		var ps = PlayState.instance;
+		if (ps == null || ps.currentStage == null || 
+			ps.currentStage.getDad()?.characterId != 'QT'|| PlayState.instance.isChartingMode) return;
+		
+		if (!hasPlayedQtCountDown) {
+			ps.isInCutscene = true;
+			ps.camHUD.visible = false;
+			ps.camHUD.alpha = 0;
+			event.cancel(); 
+			qtCountDown();
+		}
+
+	}
+
+	
+
+	private function onCutsceneBeatHit() {
+		PlayState.instance.currentStage.getGirlfriend().dance(true);
+	}
+	
+	private function showHUD(duration:Float = 1):Void {
+		var ps = PlayState.instance;
+		ps.camHUD.visible = true;
+		ps.camHUD.alpha = 0;	
+		FlxTween.tween(ps.camHUD, {alpha: 1}, duration, {ease: FlxEase.smoothStepInOut});
+	}
+	
+	private function startGameplay():Void {
+		var ps = PlayState.instance;
+		ps.isInCutscene = false;
+		ps.startCountdown();
+
+	}
+
+	private function qtCountDown() {
+		var ps = PlayState.instance;
+		var dad = ps.currentStage.getDad();
+		var bf = ps.currentStage.getBoyfriend();
+		var opponentPos = [dad.cameraFocusPoint.x, dad.cameraFocusPoint.y];
+		var playerPos = [bf.cameraFocusPoint.x, bf.cameraFocusPoint.y];
+		var stageZoom = ps.stageZoom;
+		var isPico = StringTools.startsWith(bf?.characterId.toLowerCase(), 'pico');
+
+		var cutsceneSfx = FunkinSound.load(Paths.sound("hi_cutie"), true);
+		var picoSfx = FunkinSound.load(Paths.sound("gameplay/cutsceneSfx/pico/introCutscene/picoWave"), true);
+		var stoneMovingSound = FunkinSound.load(Paths.sound("gameplay/stoneMoving"), true);
+		stoneMovingSound.volume = 0.6;
+		songIntro = FunkinSound.load(Paths.music("gameplay/introSong/introSong" + (PlayState.instance.currentVariation == 'pico' ? "-pico" : "-boyfriend"), "shared"), true);
+		songIntro.play();
+		songIntro.volume = 0.1;
+		hasPlayedQtCountDown = true;
+		
+		ps.tweenCameraToPosition(opponentPos[0], opponentPos[1], 1);
+		ps.tweenCameraZoom(stageZoom * 1.1875, 0, true, FlxEase.quadInOut);
+
+		cutsceneConductor = new Conductor();
+
+		var songMusicData = SongRegistry.instance.parseMusicData("gameplay/introSong/introSong" + (PlayState.instance.currentVariation == 'pico' ? "-pico" : "-boyfriend"));
+		if (songMusicData != null) cutsceneConductor.mapTimeChanges(songMusicData.timeChanges);
+		cutsceneConductor.onBeatHit.add(onCutsceneBeatHit);
+		
+		dad.playAnimation("intro");
+		new FlxTimer().start(0.75, (_) -> cutsceneSfx.play());
+
+		if (isPico) {
+			picoAkwardFourthWall = ScriptedFlxAtlasSprite.init('PicoIntroCountdown', 0, 0);
+			easterEgg = picoAkwardFourthWall.scriptGet("easterEggAppeared");
+		}
+
+		if (!isPico) {
+			new FlxTimer().start(2, (_) -> {
+				showHUD();
+				ps.tweenCameraZoom(stageZoom, 4, true, FlxEase.smoothStepInOut);
+			});
+			
+			new FlxTimer().start(3, (_) -> startGameplay());
+			
+		} else if (easterEgg) {
+			songIntro.volume = 0;
+			ps.tweenCameraToPosition(opponentPos[0]-250, opponentPos[1], 0);
+			ps.tweenCameraZoom(stageZoom * 1.50, 0, true, FlxEase.quadInOut);
+			picoHi();
+
+			new FlxTimer().start(3.5, (_) -> {
+				stoneMovingSound.play();
+				ps.tweenCameraToPosition(playerPos[0]+100, playerPos[1], 5, FlxEase.smoothStepInOut);
+				ps.tweenCameraZoom(stageZoom, 5, true, FlxEase.smoothStepInOut);
+			});
+
+			new FlxTimer().start(7, (_) -> {
+            	FlxG.openURL("https://youtu.be/SpEf-YtSwwc");
+				FlxG.switchState(new MainMenuState());
+			});
+
+		} else {
+			new FlxTimer().start(3.5, (_) -> { 
+				ps.tweenCameraToPosition(playerPos[0]+100, playerPos[1], 3, FlxEase.quadInOut);
+				picoHi();
+
+			});
+			new FlxTimer().start(4.15, (_) -> { 
+				picoSfx.play();
+			});
+			
+			new FlxTimer().start(6.35, (_) -> {
+				ps.tweenCameraZoom(stageZoom * 1.25, 1.5, true, FlxEase.quadInOut);
+			});
+			new FlxTimer().start(11, (_) -> {
+					showHUD();
+					startGameplay();
+			});
+		}
+	}
+}

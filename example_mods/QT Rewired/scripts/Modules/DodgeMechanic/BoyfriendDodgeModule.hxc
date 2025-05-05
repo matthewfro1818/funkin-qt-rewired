@@ -1,0 +1,77 @@
+import flixel.FlxG;
+import funkin.Paths;
+import flixel.util.FlxTimer;
+import funkin.play.PlayState;
+import funkin.Conductor;
+import funkin.play.scoring.Scoring;
+import funkin.graphics.FunkinSprite;
+import funkin.modding.module.Module;
+import funkin.Preferences;
+import haxe.Log;
+import funkin.play.event.SongEvent;
+
+
+	
+class BoyfriendDodgeModule extends Module {
+	public var bfDodging:Bool = false;
+	public var bfCanDodge:Bool = true;
+    public var dodgeToggleAnim:Int = 0; 
+	var activeEvent:SongEvent;
+
+
+	public function new() {
+		super('BoyfriendDodgeMechanic', 99999);
+		
+	}
+	
+	function fetchAssetPaths():Array<String> 
+	{
+		var results:Array<String> = super.fetchAssetPaths();
+
+		results.push(Paths.animateAtlas("preloadStuff/saw_assets"));
+		results.push(Paths.getSparrowAtlas("preloadStuff/saw_mechanic_assets"));
+		results.push(Paths.sound('alert'));
+		results.push(Paths.sound('attack'));
+        results.push(Paths.image("ui/popup/funkin/dodged"));
+		
+		return results;
+	}
+
+	function onStateChangeEnd(event:StateChangeScriptEvent)
+	{
+		super.onStateChangeEnd(event);
+		bfDodging = false;
+		bfCanDodge = true;
+	}
+
+	
+    function bfDodge():Void{
+		bfDodging = true;
+		bfCanDodge = false;
+		if (PlayState.instance == null || PlayState.instance.currentStage == null || PlayState.instance.currentSong.id != "obliterated") return;
+		if (PlayState.instance.currentStage.getBoyfriend() != null)
+		PlayState.instance.currentStage.getBoyfriend().playAnimation('dodge-' + ((dodgeToggleAnim ^= 1))); 
+		if (activeEvent != null)
+		{
+			var hitDiff = Std.int(Conductor.instance.songPosition - activeEvent.scriptGet("hitTime") + Conductor.instance.inputOffset);
+			var hitWindow = activeEvent.scriptGet("hitWindow");
+			trace(hitDiff);
+
+			if (hitDiff < -hitWindow) { 
+			}
+			else if (Math.abs(hitDiff) <= hitWindow)
+			{
+				activeEvent.scriptCall("onGoodHit");
+			}
+
+		}
+	}
+
+    override function onUpdate(elapsed:Float):Void {
+     super.onUpdate(elapsed);
+		
+       if (FlxG.keys.justPressed.SPACE)
+        	bfDodge();
+    }
+
+}

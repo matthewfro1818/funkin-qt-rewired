@@ -1,0 +1,14 @@
+{
+    "version": "1.0.0",
+    "name": "qtStickers",
+    "artist": "JoaDash",
+    "stickers": [
+        "transitionSwag/qtStickers/qtSticker2",
+        "transitionSwag/qtStickers/qtSticker3",
+        "transitionSwag/qtStickers/flowerSticker1",
+        "transitionSwag/qtStickers/starSticker",
+        "transitionSwag/qtStickers/crayonSticker",
+        "transitionSwag/qtStickers/cloudSticker",
+        "transitionSwag/qtStickers/skullSticker"
+    ]
+}

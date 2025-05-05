@@ -1,0 +1,170 @@
+import flixel.tweens.FlxEase;
+import flixel.tweens.FlxTween;
+import funkin.play.PlayState;
+import funkin.play.PlayStatePlaylist;
+import funkin.play.song.Song;
+import flixel.util.FlxTimer;
+import funkin.save.Save;
+import funkin.audio.FunkinSound;
+import funkin.data.song.SongRegistry;
+import funkin.modding.base.ScriptedFlxAtlasSprite;
+
+class BlissfulSongScript extends Song {
+	var cutsceneSfx:FunkinSound;
+	var tweens = [];
+    var pausedTweens = [];
+	var qtCutscene;
+  var hasPlayedOutro:Bool = false;
+	public function new() {
+		super('blissful');
+		hasPlayedOutro = false;
+
+	}
+			
+	function onCreate(event:ScriptEvent):Void {
+        super.onCreate(event);
+        hasPlayedOutro = false;
+    }
+	public override function isSongNew(currentDifficulty:String, currentVariation:String):Bool{
+    return false;
+	}
+
+  	public override function onSongEnd(event:CountdownScriptEvent):Void {
+		super.onSongEnd(event);
+    if (!PlayStatePlaylist.isStoryMode || PlayState.instance.currentVariation == 'pico') hasPlayedOutro = true;
+	
+    if (!hasPlayedOutro) {
+        hasPlayedOutro = true;
+        event.cancel();
+			  event.stopPropagation(); 
+			  introCutscene();
+    } else
+			hasPlayedOutro = false;
+	}
+  private function introCutscene():Void {
+        PlayState.instance.isInCutscene = true;
+        PlayState.instance.currentStage.getNamedProp('blackScreen').screenCenter();
+		var bfPos = [PlayState.instance.currentStage.getBoyfriend().cameraFocusPoint.x, PlayState.instance.currentStage.getBoyfriend().cameraFocusPoint.y];
+		var gfPos = [PlayState.instance.currentStage.getGirlfriend().cameraFocusPoint.x, PlayState.instance.currentStage.getGirlfriend().cameraFocusPoint.y];
+		var qtPos = [PlayState.instance.currentStage.getDad().cameraFocusPoint.x, PlayState.instance.currentStage.getDad().cameraFocusPoint.y];
+
+		setupCutsceneAudio();
+		setupCutsceneTimeline(gfPos);
+	}
+  private function setupCutsceneAudio():Void {
+		
+		cutsceneSfx = FunkinSound.load(Paths.sound("qtsfx"), true);
+		cutsceneSfx.volume = 1;
+        tweens.push(FlxTween.tween(PlayState.instance.camHUD, {alpha: 0}, 1));
+
+		var songMusicData = SongRegistry.instance.parseMusicData('qtsfx');
+
+		var ps = PlayState.instance;
+		var dad = ps.currentStage.getDad();
+
+		qtCutscene = ScriptedFlxAtlasSprite.init('QtCutsceneKBentrance', 0, 0);
+		qtCutscene.setPosition(dad.x + 106.5, dad.y + 137); 
+		qtCutscene.shader = dad.shader;
+		qtCutscene.zIndex = 400;
+		PlayState.instance.currentStage.getNamedProp("lightOverlay").zIndex = 401;
+		ps.currentStage.getDad().visible = false;
+		ps.currentStage.add(qtCutscene);
+		ps.currentStage.refresh();
+		qtCutscene.onAnimationComplete.addOnce((_) -> {
+				
+		});
+		
+	}
+
+  private function setupCutsceneTimeline(gfPos:Array<Float>):Void {
+
+		PlayState.instance.tweenCameraZoom(0.68, 1, true, FlxEase.quadInOut);
+		qtCutscene.scriptCall('doAnim');
+		var opponentPos = [PlayState.instance.currentStage.getDad().cameraFocusPoint.x, PlayState.instance.cameraFollowPoint.y];
+        
+		new FlxTimer().start(1, _ -> cutsceneSfx.play());
+		
+		new FlxTimer().start(1, _ -> {
+			PlayState.instance.tweenCameraToPosition(opponentPos[0], opponentPos[1], 2.55,FlxEase.quadInOut);
+			
+		});
+		
+					
+		new FlxTimer().start(2.26, _ -> {
+			tweens.push(FlxTween.tween(PlayState.instance.currentStage.getNamedProp("lightOverlay"), {alpha: 0}, 1.10, {ease: FlxEase.linear}));
+			tweens.push(FlxTween.tween(PlayState.instance.currentStage.getNamedProp("blackScreen"), {alpha: 1}, 1.10, {ease: FlxEase.linear}));
+            tweens.push(FlxTween.tween(PlayState.instance.currentStage.getNamedProp("spotLight"), {alpha: 1}, 1.10, {ease: FlxEase.linear}));
+		});
+
+		new FlxTimer().start(12, _ -> {
+			PlayState.instance.camGame.shake(0.002, 8);
+
+			tweens.push(FlxTween.tween(PlayState.instance.currentStage.getNamedProp("redScreen"), {alpha: 1}, 0.7, {ease: FlxEase.linear}));
+            tweens.push(FlxTween.tween(PlayState.instance.currentStage.getNamedProp("spotLight"), {alpha: 0}, 0.7, {ease: FlxEase.linear}));
+            
+
+		});
+		
+		new FlxTimer().start(13, _ -> {
+			PlayState.instance.camCutscene.fade(0xFFFFFFFF, 2, false, () -> {
+				qtCutscene.destroy();
+            });
+		});
+
+		new FlxTimer().start(15.7, _ -> {
+			PlayState.instance.camCutscene.fade(0xFF000000, 0.0001, false);
+		});
+		new FlxTimer().start(17.5, _ -> {
+			PlayState.instance.endSong(true);
+
+		});
+
+		
+	}
+	override function onDestroy(event) {
+        super.onDestroy(event);
+        resetTweens();
+    }
+	
+    private function resetTweens() {
+        for (tween in tweens) {
+            if (tween != null) tween.cancel();
+        }
+        tweens = [];
+        pausedTweens = [];
+    }
+	
+    override function onResume(event) {
+        super.onResume(event);
+        for (tween in pausedTweens) {
+            if (tween != null) tween.active = true;
+        }
+        pausedTweens = [];
+		
+    }
+	
+    override function onPause(event) {
+        super.onPause(event);
+        for (tween in tweens) {
+            if (tween != null) {
+                tween.active = false;
+                pausedTweens.push(tween);
+            }
+        }
+		
+
+    }
+	
+  public override function listAltInstrumentalIds(difficultyId:String, variationId:String):Array<String> {
+    if (difficultyId == 'easy' || difficultyId == 'normal' || difficultyId == 'hard') {
+      var hasBeatenPicoMix = Save.instance.hasBeatenSong(this.id, null, 'pico');
+
+      switch (variationId) {
+        case 'pico':
+          return [];
+        default:
+          return hasBeatenPicoMix ? ['pico'] : [];
+      }
+    }
+  }
+}

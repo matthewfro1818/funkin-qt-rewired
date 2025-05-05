@@ -1,0 +1,15 @@
+{
+  "title": "QT Rewired [v1.1.0]'.",
+  "description": "Guess who's back!",
+  "author": "JoaDash",
+  "contributors": [
+    {
+      "name": "JoaDash",
+      "role": "Director + Artist",
+      "url": "https://x.com/joadash_"
+    }
+  ],
+  "api_version": "0.6.4",
+  "mod_version": "1.0.0",
+  "license": "CC BY 4.0,MIT"
+}

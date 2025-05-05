@@ -1,0 +1,33 @@
+import funkin.graphics.adobeanimate.FlxAtlasSprite;
+import flixel.math.FlxPoint;
+import flixel.util.FlxTimer;
+
+class PicoIntroCountdown extends FlxAtlasSprite
+{
+  private static var easterEggAppeared:Bool = false;
+  
+  private static inline var EASTER_EGG_CHANCE:Float = 0.06;
+
+  
+  private var suffix:String = "";
+
+  public function new(x:Float, y:Float)
+  {
+    if (!easterEggAppeared && Math.random() < EASTER_EGG_CHANCE) {
+      suffix = "-easterEgg";
+      easterEggAppeared = true; 
+    }
+
+    super(x, y, Paths.animateAtlas("characters/PICO/pico_intro" + suffix, "shared"), {
+      FrameRate: 24.0,
+      Reversed: false,
+      ShowPivot: false,
+      Antialiasing: true,
+      ScrollFactor: new FlxPoint(1, 1),
+    });
+  }
+
+  function doAnim(){
+    playAnimation("picoHi-intro" + suffix, true, false, false);
+  }
+} 
